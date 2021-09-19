@@ -1,0 +1,19 @@
+{
+  "name": "youtube-comment-downloader",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "load_all": "node load_all.js",
+    "update": "node update.js",
+    "format": "node --experimental-json-modules formatDiary.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "fs": "0.0.1-security",
+    "node-fetch": "^3.0.0"
+  }
+}
