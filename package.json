@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "init": "node load_all.js && npm run start",
-    "start": "concurrently --kill-others \"node periodic.js\" \"node ./bin/www\""
+    "start": "concurrently --kill-others \"node periodic.js\" \"node app.js\"",
+    "server": "node app.js"
   },
   "dependencies": {
     "concurrently": "^6.2.1",

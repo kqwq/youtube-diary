@@ -1,6 +1,6 @@
-var express = require('express');
+import express from 'express';
 var router = express.Router();
-const fs = require('fs');
+import fs from 'fs';
 
 router.get('/', function(req, res, next) {
   res.render('index', { title: '404' });
@@ -15,4 +15,4 @@ router.get('/channel/:id', function(req, res, next) {
   res.json(JSON.parse(fs.readFileSync('./data/channel/' + id + '.json', 'utf8')));
 });
 
-module.exports = router;
+export default router;
