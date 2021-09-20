@@ -18,6 +18,7 @@ const commentSchema = new mongoose.Schema({
 })
 
 const diaryEntry = new mongoose.Schema({
+  day: String,
   text: String,
   likes: Number,
   replies: Number,

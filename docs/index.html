@@ -190,8 +190,8 @@ function filterAuthors(value) {
   }
   let authorsHtml = ""
   for (let channel of channelData) {
-    if (freePass || channel.name.toLowerCase().includes(value) || channel.id.toLowerCase().includes(value)) {
-      authorsHtml += `<div><a class="author-tag" href="#" onclick="readDiary('${channel.id}')">${channel.name} (${channel.diaryLength})</a></div>`
+    if (freePass || channel.name.toLowerCase().includes(value) || channel.channelId.toLowerCase().includes(value)) {
+      authorsHtml += `<div><a class="author-tag" href="#" onclick="readDiary('${channel.channelId}')">${channel.name} (${channel.diaryLength})</a></div>`
     }
   }
   document.querySelector("#channel-list").innerHTML = authorsHtml;
@@ -199,7 +199,7 @@ function filterAuthors(value) {
 
 
 async function fetchDiaryData() {
-  let res = await fetch(`${baseUrl}/diary/channelIds`);
+  let res = await fetch(`${baseUrl}/diary/channelIds?limit=100`);
   //let res = await fetch(`./channelIds.json`);///temp
 
   channelData = await res.json()
@@ -214,25 +214,34 @@ function backToHome() {
   document.querySelector("#page-1").style.display = "block"
 }
 
+function addDays(diaryObj) {
+  
+}
+
 function readDiary(channelId) {
   // debugging
-  let channel = channelData.find(c => c.id === channelId)
+  console.log(channelId, channelData);
+  let user = channelData.find(c => c.channelId == channelId)
+  if (!user) {
+    console.log("user not found")
+    alert("user not found")
+    return;
+  }
   document.querySelector("#page-1").style.display = "none"
   document.querySelector("#page-2").style.display = "block"
-  document.querySelector("#author-name").innerHTML = channel.name
+  document.querySelector("#author-name").innerHTML = user.name
   document.querySelector("#diary-content").innerHTML = "Loading...";
   (async () => {
     let res = await fetch(`${baseUrl}/diary/channel/${channelId}`)
     let commentData = await res.json()
     lastCommentData = commentData
     let diaryHtml = ""
-    for (let day in commentData.diary) {
-      let entry = commentData.diary[day]
+    for (let entry of commentData.diary.reverse()) {
       let formattedText = entry.text.replace(/day \d+\W?\:?/mi, "")
       let formattedDate = new Date(entry.published).toLocaleDateString()
       diaryHtml +=
         `<div class="diary-entry mt-4">
-        <h4>Day ${day}</h4>
+        <h4>Day ${entry.day}</h4>
       <hr/>
         <div class="diary-entry-content">${formattedText}</div>
         <div class="diary-entry-context">
