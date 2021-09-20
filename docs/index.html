@@ -29,7 +29,7 @@
     }
 
     #channel-list {
-      display: flex; 
+      display: flex;
       flex-wrap: wrap;
     }
 
@@ -38,22 +38,27 @@
       font-size: 2.2em;
       padding: 0.5em;
     }
+
     .diary-entry-content {
       font-size: 1.2em;
     }
+
     hr {
       margin: 2px;
     }
+
     .diary-entry-context {
       font-size: 1.0em;
       color: gray;
     }
+
     .diary-entry-date {
       float: right;
     }
+
     #diary-nav a {
-      font-family:monospace;
-      color:gray
+      font-family: monospace;
+      color: gray
     }
   </style>
 </head>
@@ -103,7 +108,8 @@
 
       <div class="row">
         <div class="form-outline mt-2">
-          <input type="search" id="form1" class="form-control" placeholder="Search name or channel id..." aria-label="Search" onkeyup="filterAuthors(this.value)" />
+          <input type="search" id="form1" class="form-control" placeholder="Search name or channel id..."
+            aria-label="Search" onkeyup="fetchDiaryData(this.value)" />
         </div>
       </div>
 
@@ -125,18 +131,28 @@
     <div class="container">
       <div class="row">
         <div class="col-md-12 mt-4">
-          <h3><span id="author-name">user</span>'s Diary</h3>
+          <h3><span class="author-name">user</span>'s Diary</h3>
         </div>
       </div>
     </div>
     <div class="container">
       <div class="row">
-        <div class="col-md-6 col-sm-12 col-lg-6" id="diary-content">
-
-        </div>
+        <div class="col-md-6 col-sm-12 col-lg-6" id="diary-content"></div>
         <div class="col-md-6 col-sm-12 col-lg-6" id="diary-nav">
           <h3><a href="#" onclick="backToHome()">Home</a></h3>
           <h3><a href="#" onclick="downloadDiary()">Download copy</a></h3>
+        </div>
+      </div>
+    </div>
+    <div class="container" id="non-diary-section">
+      <div class="row">
+        <div class="col-md-12 mt-4">
+          <h3>Comments from <span class="author-name"></span></h3>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <div id="comments-content"></div>
         </div>
       </div>
     </div>
@@ -147,7 +163,8 @@
   <div class="container fixed-bottom">
     <div class="row">
       <div class="col-md-12 mt-4 text-center bg-light rounded">
-        <span style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif">If you want, follow me</span>
+        <span style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif">If you want, follow
+          me</span>
         <a href="https://www.youtube.com/channel/UCUcWoqQlFs8vKMGZmnlH2Lw/"><img
             src="https://img.icons8.com/ios-glyphs/30/000000/youtube-play.png" /></a>
         <a href="https://www.twitter.com/squishypill"><img
@@ -169,116 +186,142 @@
 </body>
 <script>
 
-var baseUrl = "https://youtube-diary.herokuapp.com";
-var channelData = [];
-var lastCommentData = [];
+  var baseUrl = "https://youtube-diary.herokuapp.com";
+  var channelData = [];
+  var lastCommentData = [];
 
-function showAboutPopup() {
-  var popup = document.getElementById("about-popup");
-  popup.style.display = "block";
-}
+  function showAboutPopup() {
+    var popup = document.getElementById("about-popup");
+    popup.style.display = "block";
+  }
 
-function filterAuthors(value) {
-  if (channelData.length == 0) {
-    return;
-  }
-  let freePass= false;
-  if (!value || value == "") {
-    freePass = true;
-  } else {
-    value = value.toLowerCase();
-  }
-  let authorsHtml = ""
-  for (let channel of channelData) {
-    if (freePass || channel.name.toLowerCase().includes(value) || channel.channelId.toLowerCase().includes(value)) {
+  function filterAuthors() {
+    let authorsHtml = ""
+    for (let channel of channelData) {
       authorsHtml += `<div><a class="author-tag" href="#" onclick="readDiary('${channel.channelId}')">${channel.name} (${channel.diaryLength})</a></div>`
     }
+    document.querySelector("#channel-list").innerHTML = authorsHtml;
   }
-  document.querySelector("#channel-list").innerHTML = authorsHtml;
-}
 
+  var blocking = false; // Prevent spamming of the API
+  async function fetchDiaryData(searchTerm) {
+    if (blocking) {
+      console.log("blocking");
+      return;
+    }
+    blocking = true;
+    let res = await fetch(`${baseUrl}/diary/channelIds?limit=100${searchTerm ? "&search=" + searchTerm : ""}`);
+    channelData = await res.json()
+    filterAuthors()
+    // Sleep 0.5 seconds // To prevent spamming of the API
+    // await new Promise(resolve => setTimeout(resolve, 500)); // This introduces new errors where a delay may cause newly typed characters to be ignored
+    blocking = false;
 
-async function fetchDiaryData() {
-  let res = await fetch(`${baseUrl}/diary/channelIds?limit=100`);
-  //let res = await fetch(`./channelIds.json`);///temp
-
-  channelData = await res.json()
-
-  filterAuthors()
-
-}
-fetchDiaryData()
-
-function backToHome() {
-  document.querySelector("#page-2").style.display = "none"
-  document.querySelector("#page-1").style.display = "block"
-}
-
-function addDays(diaryObj) {
-  
-}
-
-function readDiary(channelId) {
-  // debugging
-  console.log(channelId, channelData);
-  let user = channelData.find(c => c.channelId == channelId)
-  if (!user) {
-    console.log("user not found")
-    alert("user not found")
-    return;
   }
-  document.querySelector("#page-1").style.display = "none"
-  document.querySelector("#page-2").style.display = "block"
-  document.querySelector("#author-name").innerHTML = user.name
-  document.querySelector("#diary-content").innerHTML = "Loading...";
-  (async () => {
-    let res = await fetch(`${baseUrl}/diary/channel/${channelId}`)
-    let commentData = await res.json()
-    lastCommentData = commentData
-    let diaryHtml = ""
-    for (let entry of commentData.diary.reverse()) {
-      let formattedText = entry.text.replace(/day \d+\W?\:?/mi, "")
-      let formattedDate = new Date(entry.published).toLocaleDateString()
-      diaryHtml +=
-        `<div class="diary-entry mt-4">
+  fetchDiaryData()
+
+  function backToHome() {
+    document.querySelector("#page-2").style.display = "none"
+    document.querySelector("#page-1").style.display = "block"
+  }
+
+  function addDays(diaryObj) {
+
+  }
+
+  function readDiary(channelId) {
+    // debugging
+    console.log(channelId, channelData);
+    let user = channelData.find(c => c.channelId == channelId)
+    if (!user) {
+      console.log("user not found")
+      alert("user not found")
+      return;
+    }
+    document.querySelector("#page-1").style.display = "none"
+    document.querySelector("#page-2").style.display = "block"
+    document.querySelectorAll(".author-name").forEach(ele => ele.innerHTML = user.name)
+    document.querySelector("#diary-content").innerHTML = "Loading...";
+    (async () => {
+      let res = await fetch(`${baseUrl}/diary/channel/${channelId}`)
+      let commentData = await res.json()
+      lastCommentData = commentData
+      let nonDiaryHtml = ""
+      let diaryHtml = ""
+      for (let entry of commentData.diary.reverse()) {
+        let formattedText = entry.text.replace(/day \d+\W?\:?/mi, "")
+        let formattedDate = new Date(entry.published).toLocaleDateString()
+        diaryHtml +=
+          `<div class="diary-entry mt-4">
         <h4>Day ${entry.day}</h4>
       <hr/>
         <div class="diary-entry-content">${formattedText}</div>
         <div class="diary-entry-context">
-          <span class="diary-entry-likes">${entry.likes} like${entry.likes !== 1 ? "s": ""}</span>
-          &nbsp;<span class="diary-entry-replies">${entry.replies} repl${entry.replies !== 1 ? "ies": "y"}</span>
+          <span class="diary-entry-likes">${entry.likes} like${entry.likes !== 1 ? "s" : ""}</span>
+          &nbsp;<span class="diary-entry-replies">${entry.replies} repl${entry.replies !== 1 ? "ies" : "y"}</span>
           <span class="diary-entry-date">${formattedDate}</span>
         </div>
       </div>
       `
-    }
-    diaryHtml += `
+      }
+
+
+      if (commentData.nonDiurnal.length === 0) {
+        document.querySelector("#non-diary-section").style.display = "none"
+        diaryHtml += `
     <div class="mt-5">
     <a href="#" onclick="backToHome()">Home</a>&nbsp;
     <a href="#" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">Back to top</a>
     </div>`
-    document.querySelector("#diary-content").innerHTML = diaryHtml
-  })()
-}
+      } else {
 
-function enableDarkTheme() {
-  alert("coming soon!")
-}
+        document.querySelector("#non-diary-section").style.display = "block"
+        let i = 1
+        for (let entry of commentData.nonDiurnal.reverse()) {
+          let formattedDate = new Date(entry.published).toLocaleDateString()
+          nonDiaryHtml +=
+            `<div class="diary-entry mt-4">
+        <h4>#${i}</h4>
+      <hr/>
+        <div class="diary-entry-content">${entry.text}</div>
+        <div class="diary-entry-context">
+          <span class="diary-entry-likes">${entry.likes} like${entry.likes !== 1 ? "s" : ""}</span>
+          &nbsp;<span class="diary-entry-replies">${entry.replies} repl${entry.replies !== 1 ? "ies" : "y"}</span>
+          <span class="diary-entry-date">${formattedDate}</span>
+        </div>
+      </div>
+      `
+          i++
+        }
+        nonDiaryHtml += `
+    <div class="mt-5">
+    <a href="#" onclick="backToHome()">Home</a>&nbsp;
+    <a href="#" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">Back to top</a>
+    </div>`
+      }
+      document.querySelector("#diary-content").innerHTML = diaryHtml
+      document.querySelector("#comments-content").innerHTML = nonDiaryHtml
+    })()
+  }
 
-function downloadDiary() {
-  // Download diary as a .json file
-  let diaryData = lastCommentData
-  diaryData.dateRetieved = new Date()
-  let diaryJson = JSON.stringify(diaryData, null, 2)
-  let diaryBlob = new Blob([diaryJson], { type: "application/json" })
-  let diaryUrl = URL.createObjectURL(diaryBlob)
-  let diaryLink = document.createElement("a")
-  diaryLink.href = diaryUrl
-  diaryLink.download = "Diary_Data.json"
-  document.body.appendChild(diaryLink)
-  diaryLink.click()
-  document.body.removeChild(diaryLink)
-}
+  function enableDarkTheme() {
+    alert("coming soon!")
+  }
+
+  function downloadDiary() {
+    // Download diary as a .json file
+    let diaryData = lastCommentData
+    diaryData.dateRetieved = new Date()
+    let diaryJson = JSON.stringify(diaryData, null, 2)
+    let diaryBlob = new Blob([diaryJson], { type: "application/json" })
+    let diaryUrl = URL.createObjectURL(diaryBlob)
+    let diaryLink = document.createElement("a")
+    diaryLink.href = diaryUrl
+    diaryLink.download = "Diary_Data.json"
+    document.body.appendChild(diaryLink)
+    diaryLink.click()
+    document.body.removeChild(diaryLink)
+  }
 
 
 
