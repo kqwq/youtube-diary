@@ -169,6 +169,7 @@
 </body>
 <script>
 
+var baseUrl = "https://frozen-meadow-29453.herokuapp.com";
 var channelData = [];
 var lastCommentData = [];
 
@@ -198,9 +199,8 @@ function filterAuthors(value) {
 
 
 async function fetchDiaryData() {
-  //let apiUrl = "http://localhost:3000";
-  //let res = await fetch(`${apiUrl}/diary/channelIds`);
-  let res = await fetch(`./channelIds.json`);///temp
+  let res = await fetch(`${baseUrl}/diary/channelIds`);
+  //let res = await fetch(`./channelIds.json`);///temp
 
   channelData = await res.json()
 
@@ -216,14 +216,13 @@ function backToHome() {
 
 function readDiary(channelId) {
   // debugging
-  channelId = "UC_rmq3dfFClzKo_nPpmfrDA"
   let channel = channelData.find(c => c.id === channelId)
   document.querySelector("#page-1").style.display = "none"
   document.querySelector("#page-2").style.display = "block"
   document.querySelector("#author-name").innerHTML = channel.name
   document.querySelector("#diary-content").innerHTML = "Loading...";
   (async () => {
-    let res = await fetch(`./UC_rmq3dfFClzKo_nPpmfrDA.json`)
+    let res = await fetch(`${baseUrl}/diary/channel/${channelId}`)
     let commentData = await res.json()
     lastCommentData = commentData
     let diaryHtml = ""
