@@ -248,7 +248,7 @@
       lastCommentData = commentData
       let nonDiaryHtml = ""
       let diaryHtml = ""
-      for (let entry of commentData.diary.reverse()) {
+      for (let entry of commentData.diary.sort((a, b) => new Date(a.date) - new Date(b.date))) {
         let formattedText = entry.text.replace(/day \d+\W?\:?/mi, "")
         let formattedDate = new Date(entry.published).toLocaleDateString()
         diaryHtml +=
@@ -277,7 +277,7 @@
 
         document.querySelector("#non-diary-section").style.display = "block"
         let i = 1
-        for (let entry of commentData.nonDiurnal.reverse()) {
+        for (let entry of commentData.nonDiurnal.sort((a, b) => new Date(a.date) - new Date(b.date))) {
           let formattedDate = new Date(entry.published).toLocaleDateString()
           nonDiaryHtml +=
             `<div class="diary-entry mt-4">
