@@ -75,7 +75,7 @@ async function commentCycle(videoId, pageToken) {
   }
   
   // Write comments to file
-  console.log('Writing comments to file');
+  console.log('Writing comments to file (load_all.js)');
   fs.writeFileSync(`./data/comments.json`, JSON.stringify({
     comments: allComments,
     videoId: video_id,

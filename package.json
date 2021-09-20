@@ -2,16 +2,22 @@
   "name": "youtube-comment-downloader",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "init": "node load_all.js && node formatDiary.js",
-    "start": "node periodic.js && node ./bin/www"
+    "init": "node load_all.js && npm run start",
+    "start": "concurrently --kill-others \"node periodic.js\" \"node ./bin/www\""
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
     "debug": "~2.6.9",
+    "dotenv": "^10.0.0",
     "express": "~4.16.1",
+    "fs": "0.0.1-security",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
-    "morgan": "~1.9.1"
+    "morgan": "~1.9.1",
+    "node-fetch": "^3.0.0",
+    "node-schedule": "^2.0.0"
   }
 }

@@ -1,9 +1,6 @@
-const fs = require('fs');
-const commentData = require('./data/comments.json');
+import fs from 'fs';
 
-if (fs.existsSync('./data/comments.json')) {
-  fs.rmSync('./data/comments.json') // Remove this file because it's large and not needed
-}
+let commentData = JSON.parse(fs.readFileSync('./data/comments.json'));
 
 let users = {}
 

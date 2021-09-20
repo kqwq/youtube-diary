@@ -1,94 +1,279 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <title>Diary Explorer</title>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS v5.0.2 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"  integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    
-    <style>
-      h1, h2, h3, h4, h5 {
+<head>
+  <title>Diary Explorer</title>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS v5.0.2 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+  <style>
+    h1,
+    h2,
+    h3,
+    h4,
+    h5 {
       font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
-      }
-      </style>
-  </head>
-  <body>
+    }
 
-    <div id="page-1">
+    #about-popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
 
-      <div class="container">
-        <div class="row">
-          <div class="col-md-12 mt-4">
-            <h1>Diary Explorer</h1>
-            <a href="https://www.youtube.com/watch?v=HQnC1UHBvWA" target="_blank">Source</a>
-            - <a href="#" onclick="showAboutPopup()">About</a>
-            - <a href="mailto:squishycaterpillar@gmail.com?subject=Diary%20Explorer">Contact</a>
-            - <a href="#" onclick="enableDarkTheme()">Dark theme</a>
-          </div>
+    #channel-list {
+      display: flex; 
+      flex-wrap: wrap;
+    }
+
+    .author-tag {
+      color: gray;
+      font-size: 2.2em;
+      padding: 0.5em;
+    }
+    .diary-entry-content {
+      font-size: 1.2em;
+    }
+    hr {
+      margin: 2px;
+    }
+    .diary-entry-context {
+      font-size: 1.0em;
+      color: gray;
+    }
+    .diary-entry-date {
+      float: right;
+    }
+    #diary-nav a {
+      font-family:monospace;
+      color:gray
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <div id="about-popup" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">About Diary Explorer</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+            onclick="document.querySelector('#about-popup').style.display='none'">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
-
-        <div class="row">
-          <div class="form-outline mt-2">
-            <input type="search" id="form1" class="form-control" placeholder="Search authors"
-            aria-label="Search" />
-          </div>
+        <div class="modal-body">
+          <p>This is a simple web app that allows you to explore the YouTube comments of
+            <a href="https://www.youtube.com/watch?v=HQnC1UHBvWA" target="_blank">this video</a>. You can search for an
+            author and then see the videos of that author.
+            You can also see the diary-related comments of the author organized by day.
+          </p>
+          <p>This app is built with the help of the YouTube Data API v3 and Bootstrap v5.0.2.</p>
+          <p>This app is open source and you can find the source code on <a
+              href="https://github.com/kqwq/youtube-diary">GitHub</a>.</p>
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal"
+            onclick="document.querySelector('#about-popup').style.display='none'">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        <div class="row">
-          <div class="col-md-12 mt-4">
-            <h3>Authors</h3>
-          </div>
+  <div id="page-1">
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12 mt-4">
+          <h1>Diary Explorer</h1>
+          <a href="#" onclick="showAboutPopup()">About</a>
+          - <a href="mailto:squishycaterpillar@gmail.com?subject=Diary%20Explorer">Contact</a>
+          - <a href="#" onclick="enableDarkTheme()">Dark theme</a>
         </div>
       </div>
 
-      <div class="container">
+      <div class="row">
+        <div class="form-outline mt-2">
+          <input type="search" id="form1" class="form-control" placeholder="Search name or channel id..." aria-label="Search" onkeyup="filterAuthors(this.value)" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12 mt-4">
+          <h3>Channels</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div id="channel-list">
         loading...
       </div>
     </div>
-    <div id="page-2">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-12 mt-4">
-            <h3><span id="author-name">user</span>'s Diary</h3>
-          </div>
-        </div>
-      </div>
-      <div class="container">
-        <div class="row col-md-6 col-sm-12 col-lg-6">
-        
-        </div>
-      </div>
-    </div>  
-    
-    <!-- Footer with social media links -->
-    <div class="container fixed-bottom">
+  </div>
+
+  <div id="page-2" style="display: none;">
+    <div class="container">
       <div class="row">
-        <div class="col-md-12 mt-4 text-center bg-light rounded">
-          <span style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif">If you want, follow me</span>
-          <a href="https://www.youtube.com/channel/UCUcWoqQlFs8vKMGZmnlH2Lw/"><img src="https://img.icons8.com/ios-glyphs/30/000000/youtube-play.png"/></a>
-          <a href="https://www.twitter.com/squishypill"><img src="https://img.icons8.com/ios-glyphs/30/000000/twitter--v1.png"/></a>
-          <a href="https://www.github.com/kqwq"><img src="https://img.icons8.com/ios-glyphs/30/000000/github.png"/></a>
+        <div class="col-md-12 mt-4">
+          <h3><span id="author-name">user</span>'s Diary</h3>
         </div>
       </div>
     </div>
-      
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 col-sm-12 col-lg-6" id="diary-content">
 
-      
-    <!-- Bootstrap JavaScript Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
-  </body>
-  <script>
+        </div>
+        <div class="col-md-6 col-sm-12 col-lg-6" id="diary-nav">
+          <h3><a href="#" onclick="backToHome()">Home</a></h3>
+          <h3><a href="#" onclick="downloadDiary()">Download copy</a></h3>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    async function fetchDiaryData() {
-      let res = await fetch('/api/diary')
-      let data = await res.json()
-      
+  <!-- Footer with social media links -->
+  <div class="mt-5"></div>
+  <div class="container fixed-bottom">
+    <div class="row">
+      <div class="col-md-12 mt-4 text-center bg-light rounded">
+        <span style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif">If you want, follow me</span>
+        <a href="https://www.youtube.com/channel/UCUcWoqQlFs8vKMGZmnlH2Lw/"><img
+            src="https://img.icons8.com/ios-glyphs/30/000000/youtube-play.png" /></a>
+        <a href="https://www.twitter.com/squishypill"><img
+            src="https://img.icons8.com/ios-glyphs/30/000000/twitter--v1.png" /></a>
+        <a href="https://www.github.com/kqwq"><img src="https://img.icons8.com/ios-glyphs/30/000000/github.png" /></a>
+      </div>
+    </div>
+  </div>
 
+
+
+  <!-- Bootstrap JavaScript Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+    integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+    integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+    crossorigin="anonymous"></script>
+</body>
+<script>
+
+var channelData = [];
+var lastCommentData = [];
+
+function showAboutPopup() {
+  var popup = document.getElementById("about-popup");
+  popup.style.display = "block";
+}
+
+function filterAuthors(value) {
+  if (channelData.length == 0) {
+    return;
+  }
+  let freePass= false;
+  if (!value || value == "") {
+    freePass = true;
+  } else {
+    value = value.toLowerCase();
+  }
+  let authorsHtml = ""
+  for (let channel of channelData) {
+    if (freePass || channel.name.toLowerCase().includes(value) || channel.id.toLowerCase().includes(value)) {
+      authorsHtml += `<div><a class="author-tag" href="#" onclick="readDiary('${channel.id}')">${channel.name} (${channel.diaryLength})</a></div>`
     }
+  }
+  document.querySelector("#channel-list").innerHTML = authorsHtml;
+}
 
-  </script>
+
+async function fetchDiaryData() {
+  //let apiUrl = "http://localhost:3000";
+  //let res = await fetch(`${apiUrl}/diary/channelIds`);
+  let res = await fetch(`./channelIds.json`);///temp
+
+  channelData = await res.json()
+
+  filterAuthors()
+
+}
+fetchDiaryData()
+
+function backToHome() {
+  document.querySelector("#page-2").style.display = "none"
+  document.querySelector("#page-1").style.display = "block"
+}
+
+function readDiary(channelId) {
+  // debugging
+  channelId = "UC_rmq3dfFClzKo_nPpmfrDA"
+  let channel = channelData.find(c => c.id === channelId)
+  document.querySelector("#page-1").style.display = "none"
+  document.querySelector("#page-2").style.display = "block"
+  document.querySelector("#author-name").innerHTML = channel.name
+  document.querySelector("#diary-content").innerHTML = "Loading...";
+  (async () => {
+    let res = await fetch(`./UC_rmq3dfFClzKo_nPpmfrDA.json`)
+    let commentData = await res.json()
+    lastCommentData = commentData
+    let diaryHtml = ""
+    for (let day in commentData.diary) {
+      let entry = commentData.diary[day]
+      let formattedText = entry.text.replace(/day \d+\W?\:?/mi, "")
+      let formattedDate = new Date(entry.published).toLocaleDateString()
+      diaryHtml +=
+        `<div class="diary-entry mt-4">
+        <h4>Day ${day}</h4>
+      <hr/>
+        <div class="diary-entry-content">${formattedText}</div>
+        <div class="diary-entry-context">
+          <span class="diary-entry-likes">${entry.likes} like${entry.likes !== 1 ? "s": ""}</span>
+          &nbsp;<span class="diary-entry-replies">${entry.replies} repl${entry.replies !== 1 ? "ies": "y"}</span>
+          <span class="diary-entry-date">${formattedDate}</span>
+        </div>
+      </div>
+      `
+    }
+    diaryHtml += `
+    <div class="mt-5">
+    <a href="#" onclick="backToHome()">Home</a>&nbsp;
+    <a href="#" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">Back to top</a>
+    </div>`
+    document.querySelector("#diary-content").innerHTML = diaryHtml
+  })()
+}
+
+function enableDarkTheme() {
+  alert("coming soon!")
+}
+
+function downloadDiary() {
+  // Download diary as a .json file
+  let diaryData = lastCommentData
+  diaryData.dateRetieved = new Date()
+  let diaryJson = JSON.stringify(diaryData, null, 2)
+  let diaryBlob = new Blob([diaryJson], { type: "application/json" })
+  let diaryUrl = URL.createObjectURL(diaryBlob)
+  let diaryLink = document.createElement("a")
+  diaryLink.href = diaryUrl
+  diaryLink.download = "Diary_Data.json"
+  document.body.appendChild(diaryLink)
+  diaryLink.click()
+  document.body.removeChild(diaryLink)
+}
+
+
+
+</script>
+
 </html>
