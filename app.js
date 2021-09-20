@@ -11,6 +11,9 @@ const __dirname = path.resolve();
 var app = express();
 console.log('HELLO THERE!');
 
+// cors
+app.use(cors());
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -23,8 +26,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/diary', diaryRouter);
 
-// cors
-app.use(cors());
 /*app.use(function(req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
