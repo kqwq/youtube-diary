@@ -6,8 +6,7 @@ import fetch from 'node-fetch'
 
 dotenv.config()
 
-var video_id = "HQnC1UHBvWA"
-
+var video_id = process.env.YOUTUBE_VIDEO_ID
 
 // Retieve comments from YouTube API
 const getComments = async (videoId, nextPageToken) => {
@@ -62,6 +61,9 @@ async function commentCycle(videoId, pageToken) {
 }
 
 (async ()=>{
+  if (!fs.existsSync(`./data`)) {
+    fs.mkdirSync(`./data`)
+  }
   let nextPageToken = 'firstPass'
   while(nextPageToken) {
     nextPageToken = await commentCycle(video_id, nextPageToken)
@@ -74,7 +76,7 @@ async function commentCycle(videoId, pageToken) {
   
   // Write comments to file
   console.log('Writing comments to file');
-  fs.writeFileSync(`./data/${video_id}.json`, JSON.stringify({
+  fs.writeFileSync(`./data/comments.json`, JSON.stringify({
     comments: allComments,
     videoId: video_id,
     currentDate: new Date(),

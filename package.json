@@ -1,19 +1,17 @@
 {
   "name": "youtube-comment-downloader",
-  "type": "module",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
-    "load_all": "node load_all.js",
-    "update": "node update.js",
-    "format": "node --experimental-json-modules formatDiary.js"
+    "init": "node load_all.js && node formatDiary.js",
+    "start": "node periodic.js && node ./bin/www"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "dotenv": "^10.0.0",
-    "fs": "0.0.1-security",
-    "node-fetch": "^3.0.0"
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "morgan": "~1.9.1"
   }
 }

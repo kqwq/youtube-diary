@@ -1,5 +1,9 @@
-import fs from 'fs'
-import commentData from './data/HQnC1UHBvWA.json'
+const fs = require('fs');
+const commentData = require('./data/comments.json');
+
+if (fs.existsSync('./data/comments.json')) {
+  fs.rmSync('./data/comments.json') // Remove this file because it's large and not needed
+}
 
 let users = {}
 
@@ -13,7 +17,10 @@ for (let comment of commentData.comments) {
   })
 
   // Match first instance of a number
-  let day = textDigitized.match(/\d+/)?.[0]
+  let day = textDigitized.match(/day \d+/im)?.[0] || textDigitized.match(/\d+/m)?.[0]
+  if (day) {
+    day = day.replace(/day /gmi, '').toString()
+  }
 
   // Match user to database or create new user
   let userId = comment.authorChannelId
@@ -38,12 +45,55 @@ for (let comment of commentData.comments) {
     replies: comment.totalReplyCount,
   }
   if (day) {
+    if (userMatch.diary[day]) {
+      // Resolve with (1) windows folder notation, (1) turns into (2) and so on
+      let parenthesisNum = day.match(/\((\d+)\)/)?.[0]
+      if (parenthesisNum) {
+        day = day.replace(/\((\d+)\)/, `(${parseInt(parenthesisNum) + 1})`)
+      } else {
+        day += ` (1)`
+      }
+      // Debugging
+      // console.log(`${userMatch.name} has a duplicate day ${day}`);
+    }
     userMatch.diary[day] = bundle
   } else {
     userMatch.nonDiurnal.push(bundle)
   }
-
 }
+
+// Discard all users who have no diary entries and sort diary entries by date published
+console.log(Object.keys(users).length, 'Total comments');
+for (let userId in users) {
+
+  // Discard users who have no diary entries
+  let user = users[userId]
+  if (Object.keys(user.diary).length == 0) {
+    delete users[userId]
+    continue
+  }
+
+  // Discard users who do not have 2+ diary entries containing the word "day"
+  let numberOfDayEntries = 0
+  for (let day in user.diary) {
+    if (user.diary[day].text.includes('day')) {
+      numberOfDayEntries ++
+    }
+  }
+  if (numberOfDayEntries < 2) {
+    delete users[userId]
+    continue
+  }
+
+  // Sort diary entries by date published
+  user.diary = Object.keys(user.diary).sort((a, b) => {
+    return new Date(a.published) - new Date(b.published)
+  }).reduce((obj, key) => {
+    obj[key] = user.diary[key]
+    return obj
+  }, {})
+}
+console.log(Object.keys(users).length, 'Comments with 2+ day diary history');
 
 // Write to file
 let formattedData = {
@@ -53,4 +103,43 @@ let formattedData = {
   totalComments: commentData.totalComments,
   users: users
 }
-fs.writeFileSync(`DiaryData.json`, JSON.stringify(formattedData, null, 2))
+fs.writeFileSync(`./data/formatted.json`, JSON.stringify(formattedData))
+
+// CSV compressed output
+// let csv = `"User","Day","Text","Likes","Replies","Published"\n`
+// for (let userId in users) {
+//   let user = users[userId]
+//   for (let day in user.diary) {
+//     let bundle = user.diary[day]
+//     csv += `${0},${JSON.stringify(bundle.text)},${bundle.likes},${bundle.replies},${bundle.published}\n`
+//   }
+// }
+// fs.writeFileSync(`./data/dairies.csv`, csv)
+    
+
+// Break into multiple files by channel ID
+if (!fs.existsSync('./data/channel')) {
+  fs.mkdirSync(`./data/channel`) // Create channel folder if it doesn't exist
+}
+for (let userId in users) {
+  let user = users[userId]
+  fs.writeFileSync(`./data/channel/${userId}.json`, JSON.stringify(user, null, 2))
+}
+
+// Create list of channel IDs
+let channelList = []
+for (let userId in users) {
+  let user = users[userId]
+  channelList.push({
+    id: userId,
+    name: user.name,
+    imageUrl: user.imageUrl,
+    diaryLength: Object.keys(user.diary).length,
+    nonDiurnalLength: user.nonDiurnal.length
+  })
+}
+// Sort by number of diary entries
+channelList.sort((a, b) => {
+  return b.diaryLength - a.diaryLength
+})
+fs.writeFileSync(`./data/channelIds.json`, JSON.stringify(channelList, null, 2))

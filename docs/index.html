@@ -83,8 +83,11 @@
   </body>
   <script>
 
-    function fetchDiaryData() {
-    
+    async function fetchDiaryData() {
+      let res = await fetch('/api/diary')
+      let data = await res.json()
+      
+
     }
 
   </script>

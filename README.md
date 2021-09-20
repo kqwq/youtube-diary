@@ -8,12 +8,17 @@ DiaryData.json contains everyone's diary and non-diary entries.
 
 ### Data collection
 1. Clone this repo
-2. Run npm install
-3. `npm run load_all` to load all comments under the video
-4. `npm run update` to append latest comments (up to 100) to the comment database
-5. `npm run format` to format comments by user with organized diary entries
+2. Create file `.env` with the following keys:<br>
+`YOUTUBE_API_KEY=` Private API key<br>
+`YOUTUBE_VIDEO_ID=HQnC1UHBvWA`
+3. `npm install`
+4. `npm run init` to load all comments, format data, then start an express server over over localhost:3000
+node-schedule keeps all files up-to-date every day.
+Data will appear in ./data/*
 
-Repeat steps 4-5 daily to stay up-to-date
+### Routes
+/channel/`CHANNEL_ID` => Return comment info
+/channelIds => Return array of all available channels
 
 ## Website component
 Visit [url]
