@@ -1,4 +1,3 @@
-import fs from 'fs';
 
 let commentData = JSON.parse(fs.readFileSync('./data/comments.json'));
 
@@ -102,26 +101,6 @@ let formattedData = {
 }
 fs.writeFileSync(`./data/formatted.json`, JSON.stringify(formattedData))
 
-// CSV compressed output
-// let csv = `"User","Day","Text","Likes","Replies","Published"\n`
-// for (let userId in users) {
-//   let user = users[userId]
-//   for (let day in user.diary) {
-//     let bundle = user.diary[day]
-//     csv += `${0},${JSON.stringify(bundle.text)},${bundle.likes},${bundle.replies},${bundle.published}\n`
-//   }
-// }
-// fs.writeFileSync(`./data/dairies.csv`, csv)
-    
-
-// Break into multiple files by channel ID
-if (!fs.existsSync('./data/channel')) {
-  fs.mkdirSync(`./data/channel`) // Create channel folder if it doesn't exist
-}
-for (let userId in users) {
-  let user = users[userId]
-  fs.writeFileSync(`./data/channel/${userId}.json`, JSON.stringify(user, null, 2))
-}
 
 // Create list of channel IDs
 let channelList = []
