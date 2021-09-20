@@ -70,8 +70,8 @@ async function commentCycle(videoId, pageToken) {
     console.log('\n ---- nextPageToken', nextPageToken, i, ' ---- ');
     i ++
 
-    // Sleep for 1 second
-    await sleep(1000)
+    // Sleep for 0.5 second
+    await sleep(500)
   }
   
   // Write comments to file
