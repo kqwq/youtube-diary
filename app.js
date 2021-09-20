@@ -5,7 +5,6 @@ import logger from 'morgan';
 import indexRouter from './routes/index.js';
 import diaryRouter from './routes/diary.js';
 import http from 'http';
-import debug from  'debug';
 
 const __dirname = path.resolve();
 
@@ -75,7 +74,6 @@ app.use(function(err, req, res, next) {
  
  server.listen(port);
  server.on('error', onError);
- server.on('listening', onListening);
  
  /**
   * Normalize a port into a number, string, or false.
@@ -123,17 +121,5 @@ app.use(function(err, req, res, next) {
      default:
        throw error;
    }
- }
- 
- /**
-  * Event listener for HTTP server "listening" event.
-  */
- 
- function onListening() {
-   var addr = server.address();
-   var bind = typeof addr === 'string'
-     ? 'pipe ' + addr
-     : 'port ' + addr.port;
-   debug('Listening on ' + bind);
  }
  

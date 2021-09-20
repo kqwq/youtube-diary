@@ -11,14 +11,14 @@ DiaryData.json contains everyone's diary and non-diary entries.
 2. Create file `.env` with the following keys:<br>
 `YOUTUBE_API_KEY=` Private API key<br>
 `YOUTUBE_VIDEO_ID=HQnC1UHBvWA`
+`MONGO_URI=` URI to mongodb database
 3. `npm install`
-4. `npm run init` to load all comments, format data, then start an express server over over localhost:3000
-node-schedule keeps all files up-to-date every day.
-Data will appear in ./data/*
+4. `npm run init` to load all comments, format data, start an express server over over localhost:3000, and keep all files up-to-date daily (with logs).
 
 ### Routes
 /channel/`CHANNEL_ID` => Return comment info
 /channelIds => Return array of all available channels
+
 
 ## Website component
 Visit [url]

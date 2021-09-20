@@ -1,8 +1,6 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import { User } from '../models/list.js';
 var router = express.Router();
-import fs from 'fs';
 
 router.get('/', function(req, res, next) {
   res.render('index', { title: '404' });
