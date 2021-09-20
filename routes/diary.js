@@ -9,8 +9,12 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/channelIds', function(req, res, next) {
+  let theLimit = parseInt(req.query.limit) || 10;
+
+  theLimit = Math.min(Math.max(theLimit, 1), 1000); // limit to 1-1000
+
   // Get top 100 channel ids by number of subscribers and sort by descending order
-  User.find({}, "channelId name diaryLength").sort({ diaryLength: -1 }).limit(100).exec(function(err, docs) {
+  User.find({}, "channelId name diaryLength").sort({ diaryLength: -1 }).limit(theLimit).exec(function(err, docs) {
     if (err) {
       console.log(err);
     }
